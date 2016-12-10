@@ -3,18 +3,39 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.testegrafo;
+package br.unifesp.testegrafo.bean;
 
+import br.unifesp.testegrafo.controler.Grafo;
+import br.unifesp.testegrafo.controler.JGraphAdapterGrafo;
+import com.mxgraph.layout.mxCircleLayout;
+import com.mxgraph.swing.mxGraphComponent;
+import java.awt.Dimension;
 import java.io.File;
+import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
+import org.jgrapht.ListenableGraph;
+import org.jgrapht.alg.DijkstraShortestPath;
+import org.jgrapht.demo.JGraphAdapterDemo;
+import org.jgrapht.ext.JGraphXAdapter;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.ListenableDirectedGraph;
+import org.jgrapht.graph.ListenableUndirectedGraph;
+import org.jgrapht.graph.SimpleGraph;
 
 /**
  *
  * @author PauloDias
  */
 public class Main extends javax.swing.JFrame {
+
+    private static final long serialVersionUID = 2202072534703043194L;
+    private static final Dimension DEFAULT_SIZE = new Dimension(530, 320);
+    int matriz[][];
+    private Grafo grafo = new Grafo();
+
+    private JGraphXAdapter<String, DefaultEdge> jgxAdapter;
     private String nomeArq = null;
 
     public String getNomeArq() {
@@ -24,59 +45,74 @@ public class Main extends javax.swing.JFrame {
     public void setNomeArq(String nomeArq) {
         this.nomeArq = nomeArq;
     }
+
+    public int[][] getMatriz() {
+        return matriz;
+    }
+
+    public void setMatriz(int[][] matriz) {
+        this.matriz = matriz;
+    }
+
+    public Grafo getGrafo() {
+        if(this.grafo == null){
+            this.grafo = new Grafo();
+        }
+        return grafo;
+    }
+
+    public void setGrafo(Grafo grafo) {
+        this.grafo = grafo;
+    }
     
     
- 
+    
+    
+
     /**
      * Creates new form Main
      */
     public Main() {
 
         initComponents();
+
         //execucao();
     }
 
     public void execucao() {
-        Grafo grafo = new Grafo();
+        
 
         //String nomeArq = "matriz.txt"; //caminho do arquivo para leitura
+        int nVertice = getGrafo().getNumeroVetice(getNomeArq()); //preenchendo o numero de vertice
+        
+        setMatriz(getGrafo().getMatrizPeloArquivo(nomeArq, nVertice));//lendo o arquivo e devolvendo a matriz
 
-        int nVertice = grafo.getNumeroVetice(getNomeArq()); //preenchendo o numero de vertice
+        int nAresrtas = getGrafo().getNumeroArestas(getMatriz()); //preenchendo o numero de arestas
 
-        int matriz[][] = grafo.getMatrizPeloArquivo(nomeArq, nVertice); //lendo o arquivo e devolvendo a matriz
+        int grau[] = getGrafo().calcGrau(getMatriz()); //preenchendo o grau de cada vertice
 
-        int nAresrtas = grafo.getNumeroArestas(matriz); //preenchendo o numero de arestas
-
-        int grau[] = grafo.calcGrau(matriz); //preenchendo o grau de cada vertice
-
-        int mediaGrau = grafo.getMediaGrau(grau); // preenchendo a media do grau
+        int mediaGrau = getGrafo().getMediaGrau(grau); // preenchendo a media do grau
 
         //exebindo os resultados no console
-        
         jTextArea1.append("Imprimindo Matriz Adjacente" + "\n");
         imprimirMatriz(matriz);
-        
-        System.out.println("Imprimindo lista Adjacente");
-        jTextArea1.append("Imprimindo lista Adjacente" + "\n");
-        jTextArea1.append(grafo.getListaAdj(matriz));
 
-        System.out.println("Numero de Vertice K = " + nVertice);
+        jTextArea1.append("Imprimindo lista Adjacente" + "\n");
+        jTextArea1.append(getGrafo().getListaAdj(getMatriz()));
+
         jTextArea1.append("Numero de Vertice K = " + nVertice + "\n");
 
-        System.out.println("Numero de Arestas L = " + nAresrtas);
-        jTextArea1.append("Numero de Vertice K = " + nAresrtas + "\n");
+        jTextArea1.append("Numero de Arestas L = " + nAresrtas + "\n");
 
-        System.out.println("Quantidade de Grau:");
         jTextArea1.append("Quantidade de Grau:\n");
 
         for (int i = 0; i < 5; i++) {
-            System.out.println("K(" + i + ") = " + grau[i]);
             jTextArea1.append("K(" + i + ") = " + grau[i] + "\n");
         }
 
-        System.out.println("Media <K> = " + mediaGrau);
         jTextArea1.append("Media <K> = " + mediaGrau + "\n");
 
+        plotGrafo(getMatriz());
     }
 
     public void imprimirMatriz(int matriz[][]) {
@@ -87,6 +123,26 @@ public class Main extends javax.swing.JFrame {
             jTextArea1.append("\n");
         }
 
+    }
+
+    public void plotGrafo(int matriz[][]) {
+        JGraphAdapterGrafo applet = new JGraphAdapterGrafo();
+
+        ListenableGraph<String, DefaultEdge> g = applet.init2(matriz);
+        
+        
+
+        JFrame frame = new JFrame();
+        frame.getContentPane().add(applet);
+        frame.setTitle("JGraphT Grafo Redes Complexas");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+        
+        
+         jTextArea1.append("Grafo :"+g.toString()+"\n");
+        g.toString();
     }
 
     /**
@@ -101,6 +157,7 @@ public class Main extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
+        btPlotMatriz = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Execicio de Grafo");
@@ -117,6 +174,13 @@ public class Main extends javax.swing.JFrame {
         jTextArea1.setRows(5);
         jScrollPane2.setViewportView(jTextArea1);
 
+        btPlotMatriz.setText("Plotar Matriz");
+        btPlotMatriz.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btPlotMatrizActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -126,7 +190,9 @@ public class Main extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jButton1)
-                        .addGap(0, 476, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btPlotMatriz)
+                        .addGap(0, 377, Short.MAX_VALUE))
                     .addComponent(jScrollPane2))
                 .addContainerGap())
         );
@@ -134,7 +200,9 @@ public class Main extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jButton1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(btPlotMatriz))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 368, Short.MAX_VALUE)
                 .addContainerGap())
@@ -146,15 +214,24 @@ public class Main extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         JFileChooser chooser;
         chooser = new JFileChooser();
-        
+
         File file = null;
         int retorno = chooser.showSaveDialog(null); // showSaveDialog retorna um inteiro , e ele ira determinar que o chooser será para salvar.
         if (retorno == JFileChooser.APPROVE_OPTION) {
             setNomeArq(chooser.getSelectedFile().getAbsolutePath());  // o getSelectedFile pega o arquivo e o getAbsolutePath retorna uma string contendo o endereço.
-            System.out.println("nome do arquivo "+getNomeArq());
+            System.out.println("nome do arquivo " + getNomeArq());
             execucao();
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btPlotMatrizActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btPlotMatrizActionPerformed
+        // PlotGrafo frame = new PlotGrafo();
+        // frame.setVisible(true);
+        
+        int nVertice = getGrafo().getNumeroVetice(getNomeArq()); //preenchendo o numero de vertice
+        setMatriz(getGrafo().getMatrizPeloArquivo(nomeArq, nVertice));//lendo o arquivo e devolvendo a matriz
+        plotGrafo(getMatriz());
+    }//GEN-LAST:event_btPlotMatrizActionPerformed
 
     /**
      * @param args the command line arguments
@@ -195,7 +272,7 @@ public class Main extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                     Main main = new Main();
                     main.setExtendedState(JFrame.MAXIMIZED_BOTH);
                     main.setVisible(true);
@@ -208,6 +285,7 @@ public class Main extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btPlotMatriz;
     private javax.swing.JButton jButton1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTextArea jTextArea1;

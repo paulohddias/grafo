@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.testegrafo;
+package br.unifesp.testegrafo.controler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,7 +36,7 @@ public class Grafo {
 
             // a variável "linha" recebe o valor "null" quando o processo de repetição atingir o final do arquivo texto
             while (linha != null) {
-                System.out.printf("%s\n", linha);
+                //System.out.printf("%s\n", linha);
                 linha = lerArq.readLine(); // lê da segunda até a última linha
 
                 // contando o numero de linhas para saber quantos vertices
